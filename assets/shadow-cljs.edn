@@ -1,0 +1,14 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src"]
+
+ :dependencies [[binaryage/devtools "1.0.2"]
+                [nrepl "0.8.3"]
+                [reagent "1.0.0"]
+                [applied-science/js-interop "0.2.7"]]
+
+ :builds {:app {:output-dir "../priv/static/js/"
+                :asset-path "/js",
+                :target :browser
+                :modules {:app {:entries [dnd.core dnd.phoenix dnd.state] :init-fn dnd.core/init}}
+                :devtools {:after-load dnd.core/mount}}}}

@@ -1,0 +1,32 @@
+.map-grid {
+    line-height: 0px;
+    position: absolute;
+}
+
+.map-grid > * {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+}
+
+.map-grid > .none {
+}
+
+.map-grid > .grass {
+    background-image: url(/images/spritesheet.png);
+    background-position: -85px 0px;
+}
+
+.map-grid > .water {
+    background-image: url(/images/spritesheet.png);
+}
+
+.map-grid > .leaves {
+    background-image: url(/images/spritesheet.png);
+    background-position: -221px -170px;
+}
+
+.map-grid > .trunk {
+    background-image: url(/images/spritesheet.png);
+    background-position: -221px -187px;
+}
