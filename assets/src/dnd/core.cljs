@@ -51,11 +51,21 @@
      (for [cell (apply concat @dnd-map-foreground)]
        [:div {:class [cell]}])]]])
 
+(defn root []
+  [:<>
+   [:> bs4/Navbar
+    [:> bs4/Navbar.Brand "Forest and Felines"]
+    [:> bs4/Navbar.Collapse {:class [:justify-content-end]}
+     "DM Mode"]]
+   [:main {:role "main" :class [:container-fluid :flex-grow-1 :overflow-hidden]}
+    [:> bs4/Row {:class [:h-100]}
+     [battle]]]])
+
 ;; -------------------------
 ;; Initialize app
 
 (defn mount []
-  (rdom/render [battle] (js/document.getElementById "react-app")))
+  (rdom/render [root] (js/document.getElementById "react-app")))
 
 (defn ^:export init []
   (reset! socket (connect "/socket"))
