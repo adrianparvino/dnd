@@ -1,6 +1,6 @@
 (ns dnd.battle
   (:require [dnd.phoenix :refer [join push]]
-            [dnd.state :refer [socket]]
+            [dnd.state :refer [socket is-dm]]
             [cljs.core.async :refer [<! alt! alts! chan put!]]
             [reagent.core :as r]
             ["react-bootstrap" :as bs4])
@@ -37,7 +37,8 @@
       [:> bs4/ListGroup.Item {:active true} c]
       (for [character cs]
         [:> bs4/ListGroup.Item character])]
-     [:> bs4/ListGroup.Item {:class [:border-0 :mt-auto] :action true :onClick next-turn} "Next Turn"]]))
+     (when @is-dm
+       [:> bs4/ListGroup.Item {:class [:border-0 :mt-auto] :action true :onClick next-turn} "Next Turn"])]))
 
 (defn battle []
   (with-let [[handle result next-chan] (join @socket "battle" "next")
@@ -51,8 +52,8 @@
                      (swap! characters (fn [[c & cs]] `(~@cs ~c)))
                      (recur)))]
     [:<>
-     [character-turns {:class [:pl-0 :h-100] :md 4} ]
-     [:> bs4/Col {:md 8}
+     [character-turns {:class [:pl-0 :h-100] :md 4 :lg 3}]
+     [:> bs4/Col {:md 8 :lg 9}
       [:div {:class ["map-grid"] :style {:width "80px" :height "80px"}}
        (for [cell (apply concat @dnd-map)]
          [:div {:class [cell]}])]
