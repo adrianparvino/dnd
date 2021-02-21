@@ -75,9 +75,8 @@
                        next-button-chan ([_]
                                          (push handle "next" #js {} 0)
                                          (swap! characters (fn [[c & cs]] `(~@cs ~c))))
-                       set-characters-chan ([[status cs]]
-                         (case status
-                           "ok" (reset! characters cs)))
+                       set-characters-chan ([{:keys [cs]}]
+                                            (reset! characters cs))
                        edit-button-chan ([_]
                                          (reset! editing true)
                                          (loop []
