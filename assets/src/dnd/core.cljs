@@ -13,20 +13,19 @@
 ;; Views
 
 (defn root []
-  (letfn [(toggle-dm [_] (swap! is-dm not))]
-   [:<>
-    [:> bs4/Navbar
-     [:> bs4/Navbar.Brand "Forest and Felines"]
-     [:> bs4/Navbar.Collapse {:class [:justify-content-end]}
-      [:> BootstrapSwitchButton
-       {:offlabel "Player"
-        :onlabel "DM"
-        :checked @is-dm
-        :onChange toggle-dm
-        :width 100}]]]
-    [:main {:role "main" :class [:container-fluid :flex-grow-1 :overflow-hidden]}
-     [:> bs4/Row {:class [:h-100]}
-      [battle]]]]))
+  [:<>
+   [:> bs4/Navbar
+    [:> bs4/Navbar.Brand "Forest and Felines"]
+    [:> bs4/Navbar.Collapse {:class [:justify-content-end]}
+     [:> BootstrapSwitchButton
+      {:offlabel "Player"
+       :onlabel "DM"
+       :checked @is-dm
+       :onChange toggle-dm
+       :width 100}]]]
+   [:main {:role "main" :class [:container-fluid :flex-grow-1 :overflow-hidden]}
+    [:> bs4/Row {:class [:h-100]}
+     [battle]]]])
 
 ;; -------------------------
 ;; Initialize app
