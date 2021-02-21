@@ -13,4 +13,11 @@ defmodule DndWeb.BattleChannel do
     broadcast_from!(socket, "next", %{})
     {:noreply, socket}
   end
+
+  def handle_in("set-characters", payload, socket) do
+    Dnd.Battle.set_characters(Dnd.Battle, payload)
+
+    broadcast_from!(socket, "set-characters", payload)
+    {:noreply, socket}
+  end
 end

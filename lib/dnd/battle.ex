@@ -6,7 +6,7 @@ defmodule Dnd.Battle do
   end
 
   def init([]) do
-    {:ok, ["Cat 1", "Meownster 1", "Meownster 2", "Meownster 3", "Meownster 4", "Cat 2", "Cat 3"]}
+    {:ok, ["Cat 1", "Meownster 1", "Meownster 2", "Meownster 3", "Cat 2", "Cat 3"]}
   end
 
   def characters(registry) do
@@ -17,6 +17,10 @@ defmodule Dnd.Battle do
     GenServer.cast(registry, :next)
   end
 
+  def set_characters(registry, characters) do
+    GenServer.cast(registry, {:set_characters, characters})
+  end
+
   def handle_call(:characters, _from, state) do
     {:reply, state, state}
   end
@@ -24,5 +28,9 @@ defmodule Dnd.Battle do
   def handle_cast(:next, [x | xs]) do
     new_state = xs ++ [x]
     {:noreply, new_state}
+  end
+
+  def handle_cast({:set_characters, characters}, _) do
+    {:noreply, characters}
   end
 end
