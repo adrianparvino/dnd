@@ -49,20 +49,23 @@
         [:> bs4/Form.Control {:class [:subtle-input] :style {:border-width "2px" :height "1.5em"} :name "new-name" :placeholder character}]])]
     [:> bs4/ListGroup.Item props character]))
 
-(defn character-turns [{:keys [class style] :as props}]
+(defn character-list []
   (let [[c & cs] @characters]
-    [:> bs4/Col (merge props {:class (concat class [:d-flex :flex-column])})
-     [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
-      [character-item {:active true} c]
-      (for [c cs]
-        [character-item {} c])]
-     (when @is-dm
-       (list
-        [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick toggle-edit}
-         (if @editing
-           "Publish"
-           "Edit Initiative")]
-        [:> bs4/Button {:onClick next-turn} "Next Turn"]))]))
+    [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
+     [character-item {:active true} c]
+     (for [c cs]
+       [character-item {} c])]))
+
+(defn character-turns [{:keys [class style] :as props}]
+  [:> bs4/Col (merge props {:class (concat class [:d-flex :flex-column])})
+   [character-list]
+   (when @is-dm
+     [:<>
+      [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick toggle-edit}
+       (if @editing
+         "Publish"
+         "Edit Initiative")]
+      [:> bs4/Button {:onClick next-turn} "Next Turn"]])])
 
 (defn battle []
   (with-let [[handle result next-chan set-characters-chan] (join @socket "battle" "next" "set-characters")
