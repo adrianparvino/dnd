@@ -13,7 +13,7 @@
         result (promise-chan)
         event-channels (for [event events]
                          (let [ret (chan)]
-                           (.on handle event #(put! ret %))
+                           (.on handle event #(put! ret (js->clj % :keywordize-keys true)))
                            ret))]
     (-> handle
         ^phoenix/Channel (.join)
