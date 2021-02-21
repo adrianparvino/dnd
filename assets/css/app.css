@@ -1,0 +1,10 @@
+.active .subtle-input::placeholder {
+    color: white !important;
+}
+
+.subtle-input {
+    border: 0 !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}

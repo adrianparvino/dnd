@@ -46,7 +46,7 @@
                                                    (aget "new-name")
                                                    .-value)]))]
        [:> bs4/Form {:onSubmit edit-name}
-        [:> bs4/Form.Control {:class [:rounded-0 :border-top-0 :border-left-0 :border-right-0 :p-0 :bg-transparent] :style {:height "1.5em"} :name "new-name" :placeholder character}]])]
+        [:> bs4/Form.Control {:class [:subtle-input] :style {:border-width "2px" :height "1.5em"} :name "new-name" :placeholder character}]])]
     [:> bs4/ListGroup.Item props character]))
 
 (defn character-turns [{:keys [class style] :as props}]
