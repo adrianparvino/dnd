@@ -58,7 +58,7 @@
         [character-item {} c])]
      (when @is-dm
        (list
-        [:> bs4/Button {:class [:mt-auto] :onClick toggle-edit}
+        [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick toggle-edit}
          (if @editing
            "Publish"
            "Edit Initiative")]
