@@ -32,11 +32,13 @@
 (defonce edit-item-chan (chan))
 (defn toggle-edit [] (put! edit-button-chan []))
 
+(defonce handle (r/atom nil))
+
 ;; -------------------------
 ;; Views
 
-(defn character-item [{:as props :or {}} & [character]]
-  (if @editing
+(defn character-item [props editing & [character]]
+  (if editing
     [:> bs4/ListGroup.Item props
      (letfn [(edit-name [event]
                (.preventDefault event)
@@ -50,13 +52,28 @@
     [:> bs4/ListGroup.Item props character]))
 
 (defn character-list []
-  (let [[c & cs] @characters]
-    [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
-     [character-item {:active true} c]
-     (for [c cs]
-       [character-item {} c])]))
+  [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
+   (doall
+    (for [c @characters]
+      [character-item {:key c :active (= c (first @characters))} @editing c]))])
 
 (defn character-turns [{:keys [class style] :as props}]
+  (with-let [_ (go-loop []
+                 (<! edit-button-chan)
+                 (reset! editing true)
+                 (loop []
+                   (alt!
+                     edit-item-chan ([[from to]]
+                                     (when-not (some #(= to %) @characters)
+                                       (swap! characters
+                                              (fn [characters]
+                                                (for [c characters]
+                                                  (if (= c from) to c)))))
+                                     (recur))
+                     edit-button-chan ([result]
+                                       (push @handle "set-characters" (js->clj @characters) 0))))
+                 (reset! editing false)
+                 (recur))])
   [:> bs4/Col (merge props {:class (concat class [:d-flex :flex-column])})
    [character-list]
    (when @is-dm
@@ -68,34 +85,20 @@
       [:> bs4/Button {:onClick next-turn} "Next Turn"]])])
 
 (defn battle []
-  (with-let [[handle result next-chan set-characters-chan] (join @socket "battle" "next" "set-characters")
-             _ (go (let [[status {cs :characters}] (<! result)]
+  (with-let [[h result next-chan set-characters-chan] (join @socket "battle" "next" "set-characters")
+             _ (go (reset! handle h)
+                   (let [[status {cs :characters}] (<! result)]
                      (case status
                        "ok" (reset! characters cs)))
                    (loop []
                      (alt!
                        next-chan ([_] (swap! characters (fn [[c & cs]] `(~@cs ~c))))
                        next-button-chan ([_]
-                                         (push handle "next" #js {} 0)
+                                         (push @handle "next" #js {} 0)
                                          (swap! characters (fn [[c & cs]] `(~@cs ~c))))
                        set-characters-chan ([{:keys [cs]}]
                                             (reset! characters cs))
-                       edit-button-chan ([_]
-                                         (reset! editing true)
-                                         (loop []
-                                           (alt!
-                                             next-chan ([_] (recur))
-                                             next-button-chan ([_] (recur))
-                                             edit-item-chan ([[from to]]
-                                                             (when-not (some #(= to %) @characters)
-                                                               (swap! characters
-                                                                      (fn [characters]
-                                                                        (for [c characters]
-                                                                          (if (= c from) to c)))))
-                                                             (recur))
-                                             edit-button-chan ([result]
-                                                               (push handle "set-characters" (js->clj @characters) 0))))
-                                         (reset! editing false)))
+)
                      (recur)))]
     [:<>
      [character-turns {:class [:px-0 :pr-md-3 :h-100] :md 4 :lg 3}]
