@@ -95,7 +95,7 @@
                                          (reset! editing false)))
                      (recur)))]
     [:<>
-     [character-turns {:class [:pl-0 :h-100] :md 4 :lg 3}]
+     [character-turns {:class [:px-0 :pr-md-3 :h-100] :md 4 :lg 3}]
      [:> bs4/Col {:md 8 :lg 9}
       [:div {:class ["map-grid"] :style {:width "80px" :height "80px"}}
        (for [cell (apply concat @dnd-map)]
