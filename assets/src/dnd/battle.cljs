@@ -37,7 +37,7 @@
 ;; -------------------------
 ;; Views
 
-(defn character-item [props editing & [character]]
+(defn character-item [props editing character]
   (if editing
     [:> bs4/ListGroup.Item props
      (letfn [(edit-name [event] (put! edit-item-chan [character (.. event -target -value)]))]
