@@ -44,12 +44,6 @@
        [:> bs4/Form.Control {:class [:subtle-input] :style {:height "1.5em"} :placeholder character :on-blur edit-name}])]
     [:> bs4/ListGroup.Item props character]))
 
-(defn character-list []
-  [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
-   (doall
-    (for [c @characters]
-      [character-item {:key c :active (= c (first @characters))} @editing c]))])
-
 (defn character-turns [{:keys [class style] :as props}]
   (with-let [_ (go-loop []
                  (<! edit-button-chan)
@@ -68,7 +62,10 @@
                  (reset! editing false)
                  (recur))])
   [:> bs4/Col (merge props {:class (concat class [:d-flex :flex-column])})
-   [character-list]
+   [:> bs4/ListGroup {:variant "flush" :class [:overflow-auto]}
+    (doall
+     (for [c @characters]
+       [character-item {:key c :active (= c (first @characters))} @editing c]))]
    (when @is-dm
      [:<>
       [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick toggle-edit}
