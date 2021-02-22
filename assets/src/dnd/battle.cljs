@@ -40,15 +40,8 @@
 (defn character-item [props editing & [character]]
   (if editing
     [:> bs4/ListGroup.Item props
-     (letfn [(edit-name [event]
-               (.preventDefault event)
-               (put! edit-item-chan [character (-> event
-                                                   .-target
-                                                   .-elements
-                                                   (aget "new-name")
-                                                   .-value)]))]
-       [:> bs4/Form {:onSubmit edit-name}
-        [:> bs4/Form.Control {:class [:subtle-input] :style {:border-width "2px" :height "1.5em"} :name "new-name" :placeholder character}]])]
+     (letfn [(edit-name [event] (put! edit-item-chan [character (.. event -target -value)]))]
+       [:> bs4/Form.Control {:class [:subtle-input] :style {:height "1.5em"} :placeholder character :on-blur edit-name}])]
     [:> bs4/ListGroup.Item props character]))
 
 (defn character-list []
