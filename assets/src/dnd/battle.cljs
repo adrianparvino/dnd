@@ -24,12 +24,12 @@
     ['none 'none 'none   'none 'none]]))
 
 (defonce characters (r/atom []))
-(defonce next-button-chan (chan))
+(def next-button-chan (chan))
 (defn next-turn [] (put! next-button-chan []))
 
 (defonce editing (r/atom false))
-(defonce edit-button-chan (chan))
-(defonce edit-item-chan (chan))
+(def edit-button-chan (chan))
+(def edit-item-chan (chan))
 (defn toggle-edit [] (put! edit-button-chan []))
 
 (defonce handle (r/atom nil))
