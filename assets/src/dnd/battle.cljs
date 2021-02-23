@@ -77,19 +77,19 @@
 
 (defn battle []
   (with-let [[h result next-chan set-characters-chan] (join @socket "battle" "next" "set-characters")
-             _ (go (reset! handle h)
-                   (let [[status {cs :characters}] (<! result)]
-                     (case status
-                       "ok" (reset! characters cs)))
-                   (loop []
-                     (alt!
-                       next-chan ([_] (swap! characters (fn [[c & cs]] `(~@cs ~c))))
-                       next-button-chan ([_]
-                                         (push @handle "next" #js {} 0)
-                                         (swap! characters (fn [[c & cs]] `(~@cs ~c))))
-                       set-characters-chan ([{:keys [cs]}]
-                                            (reset! characters cs)))
-                     (recur)))]
+             _ (do (reset! handle h)
+                   (go (let [[status {cs :characters}] (<! result)]
+                         (case status
+                           "ok" (reset! characters cs)))
+                       (loop []
+                         (alt!
+                           next-chan ([_] (swap! characters (fn [[c & cs]] `(~@cs ~c))))
+                           next-button-chan ([_]
+                                             (push @handle "next" #js {} 0)
+                                             (swap! characters (fn [[c & cs]] `(~@cs ~c))))
+                           set-characters-chan ([{:keys [cs]}]
+                                                (reset! characters cs)))
+                         (recur))))]
     [:<>
      [character-turns {:class [:px-0 :pr-md-3 :h-100] :md 4 :lg 3}]
      [:> bs4/Col {:md 8 :lg 9}
