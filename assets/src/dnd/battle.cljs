@@ -87,8 +87,7 @@
                                          (push @handle "next" #js {} 0)
                                          (swap! characters (fn [[c & cs]] `(~@cs ~c))))
                        set-characters-chan ([{:keys [cs]}]
-                                            (reset! characters cs))
-)
+                                            (reset! characters cs)))
                      (recur)))]
     [:<>
      [character-turns {:class [:px-0 :pr-md-3 :h-100] :md 4 :lg 3}]
