@@ -46,8 +46,9 @@
 
 (defn character-turns [{:keys [class style] :as props}]
   (with-let [_ (go-loop []
-                 (<! edit-button-chan)
-                 (reset! editing true)
+                 (when (not @editing)
+                   (<! edit-button-chan)
+                   (reset! editing true))
                  (loop []
                    (alt!
                      edit-item-chan ([[from to]]
