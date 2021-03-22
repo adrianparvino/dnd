@@ -1,32 +1,30 @@
 (ns dnd.phoenix
-  (:require ["phoenix" :as phoenix]
-            [cljs.core.async :refer [chan promise-chan put!]])
+  (:require [dnd.phoenix-wrapper :as wrapper]
+            [cljs.core.async :refer [promise-chan chan put!]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defn connect [path]
-  (let [socket (phoenix/Socket. path)]
-    (.connect socket)
-    socket))
+  (wrapper/connect path))
 
-(defn join [^phoenix/Socket socket channel-name & events]
-  (let [^phoenix/Channel handle (.channel socket channel-name)
-        result (promise-chan)
-        event-channels (for [event events]
+(defn join [^phoenix/Socket socket channel-name & event-names]
+  (let [result (promise-chan)
+        event-channels (for [event-name event-names]
                          (let [ret (chan)]
-                           (.on handle event #(put! ret (js->clj % :keywordize-keys true)))
-                           ret))]
-    (-> handle
-        ^phoenix/Channel (.join)
-        ^phoenix/Channel (.receive "ok"      (fn [reply] (put! result ["ok"      (js->clj reply :keywordize-keys true)])))
-        ^phoenix/Channel (.receive "error"   (fn [reply] (put! result ["error"   (js->clj reply :keywordize-keys true)])))
-        ^phoenix/Channel (.receive "timeout" (fn [reply] (put! result ["timeout" (js->clj reply :keywordize-keys true)]))))
-    `[~handle ~result ~@event-channels]))
+                           [event-name #(put! ret %) ret]))
+        event-cbs (for [[event-name cb _] event-channels]
+                    [event-name cb])
+        chans (for [[_ _ chan] event-channels] chan)
+        handle (wrapper/join socket channel-name
+                             event-cbs
+                             #(put! result ["ok" %])
+                             #(put! result ["error" %])
+                             #(put! result ["timeout" %]))]
+    `[~handle ~result ~@chans]))
 
 (defn push [^phoenix/Channel handle event payload timeout]
   (let [result (promise-chan)]
-    (-> handle
-        ^phoenix/Channel (.push event (clj->js payload) timeout)
-        ^phoenix/Channel (.receive "ok"      (fn [reply] (put! result ["ok"      (js->clj reply :keywordize-keys true)])))
-        ^phoenix/Channel (.receive "error"   (fn [reply] (put! result ["error"   (js->clj reply :keywordize-keys true)])))
-        ^phoenix/Channel (.receive "timeout" (fn [reply] (put! result ["timeout" (js->clj reply :keywordize-keys true)]))))
+    (wrapper/push handle event payload timeout
+                  #(put! result ["ok" %])
+                  #(put! result ["error" %])
+                  #(put! result ["timeout" %]))
     result))
