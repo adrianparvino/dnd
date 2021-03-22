@@ -1,13 +1,35 @@
 (ns dnd.core
-  (:require [dnd.phoenix :refer [connect]]
+  (:require [dnd.phoenix-wrapper :refer [connect]]
             [dnd.battle :refer [battle]]
-            [dnd.state :refer [socket is-dm toggle-dm]]
             [reagent.dom :as rdom]
+            [re-frame.core :as rf]
+            [re-frame.db :refer [app-db]]
             ["bootstrap-switch-button-react"
              :rename {default BootstrapSwitchButton}]
             ["react-bootstrap" :as bs4])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [reagent.core :refer [with-let]]))
+
+(rf/reg-event-db
+ :toggle-dm
+ (fn [db _]
+   (update db :is-dm not)))
+
+(rf/reg-event-fx
+ :initialize
+ (fn [_ _]
+   {:connect "/socket"
+    :db {:is-dm false}}))
+
+(rf/reg-fx
+ :connect
+ (fn [url]
+   (swap! app-db #(assoc % :socket (connect url)))))
+
+(rf/reg-sub
+ :is-dm
+ (fn [db query-vec]
+   (:is-dm db)))
 
 ;; -------------------------
 ;; Views
@@ -20,8 +42,8 @@
      [:> BootstrapSwitchButton
       {:offlabel "Player"
        :onlabel "DM"
-       :checked @is-dm
-       :onChange toggle-dm
+       :checked @(rf/subscribe [:is-dm])
+       :onChange #(rf/dispatch [:toggle-dm])
        :width 100}]]]
    [:main {:role "main" :class [:container-fluid :flex-grow-1 :overflow-hidden]}
     [:> bs4/Row {:class [:h-100]}
@@ -34,5 +56,6 @@
   (rdom/render [root] (js/document.getElementById "react-app")))
 
 (defn ^:export init []
-  (reset! socket (connect "/socket"))
+  (rf/dispatch [:initialize])
+  (rf/dispatch [:dnd.battle/initialize])
   (mount))
