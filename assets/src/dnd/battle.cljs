@@ -13,10 +13,14 @@
     :fx [[::join nil]]}))
 
 (rf/reg-event-fx
+ ::end-turn
+ (fn [{:keys [db]} _]
+   {:fx [[:dispatch [::next]] [::broadcast-next nil]]}))
+
+(rf/reg-event-fx
  ::next
- (fn [{:keys [db]} [_ local]]
-   {:db (update db ::characters (fn [[c & cs]] `(~@cs ~c)))
-    :fx [(when local [::broadcast-next nil])]}))
+ (fn [{:keys [db]} [_]]
+   {:db (update db ::characters (fn [[c & cs]] `(~@cs ~c)))}))
 
 (rf/reg-event-db
  ::set-characters
@@ -55,7 +59,7 @@
  (fn [_]
    (swap! app-db (fn [{:keys [socket] :as db}]
                    (assoc db ::channel (join socket "battle"
-                                          {:next #(rf/dispatch [::next false])
+                                          {:next #(rf/dispatch [::next])
                                            :set-characters #(rf/dispatch [::set-characters (:cs %)])}
                                           #(rf/dispatch [::set-characters (:characters %)])))))))
 
@@ -92,7 +96,7 @@
         (if editing
           [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick #(rf/dispatch [::publish])} "Publish"]
           [:> bs4/Button {:variant "secondary" :class [:mt-auto] :onClick #(rf/dispatch [::enable-editing])} "Edit Initiative"])
-        [:> bs4/Button {:onClick #(rf/dispatch [::next true])} "Next Turn"]])]))
+        [:> bs4/Button {:onClick #(rf/dispatch [::end-turn])} "Next Turn"]])]))
 
 (defn battle []
   [character-turns {:class [:px-0 :pr-md-3 :h-100] :md 4 :lg 3}])
