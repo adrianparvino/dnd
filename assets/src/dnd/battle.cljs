@@ -1,5 +1,5 @@
 (ns dnd.battle
-  (:require [dnd.phoenix-wrapper :refer [join push]]
+  (:require [phoenix.interop :refer [join push]]
             [re-frame.core :as rf]
             [re-frame.db :refer [app-db]]
             ["react-bootstrap" :as bs4])

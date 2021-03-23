@@ -1,5 +1,5 @@
 (ns dnd.core
-  (:require [dnd.phoenix-wrapper :refer [connect]]
+  (:require [phoenix.interop :refer [connect]]
             [dnd.battle :refer [battle]]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]
